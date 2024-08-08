@@ -1,0 +1,48 @@
+syntax = "proto3";
+
+package employee;
+
+option go_package = "/proto";
+
+
+service EmployeeService {
+    rpc GetEmployees (EmptyRequest) returns (EmployeeList);
+    rpc GetEmployee (EmployeeIdRequest) returns (Employee);
+    rpc UpdateEmployee (UpdateEmployeeRequest) returns (Employee);
+    rpc DeleteEmployee (EmployeeIdRequest) returns (DeleteResponse);
+}
+
+
+
+
+enum Department {
+    IT = 0;
+    HR = 1;
+}
+
+message Employee {
+    int32 id = 1;
+    string name = 2;
+    string email = 3;
+    Department department = 4;
+}
+
+message EmployeeList{
+    repeated Employee employee = 1;
+}
+
+message EmptyRequest {}
+
+message DeleteResponse {
+    string message = 1;
+}
+
+message EmployeeIdRequest {
+    int32 id = 1;
+}
+
+message UpdateEmployeeRequest {
+    int32 id = 1;
+    string name = 2;
+    string email = 3;
+}
