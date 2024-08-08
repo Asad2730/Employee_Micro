@@ -60,7 +60,7 @@ func (s *server) UpdateEmployee(ctx context.Context, updateEmployeeDto *pb.Updat
 
 func (s *server) DeleteEmployee(ctx context.Context, EmpId *pb.EmployeeIdRequest) (*pb.DeleteResponse, error) {
 	for i, emp := range data.Emp_Arr {
-		if emp.Id == emp.Id {
+		if emp.Id == EmpId.Id {
 			data.Emp_Arr = append(data.Emp_Arr[:i], data.Emp_Arr[i+1:]...)
 
 			return &pb.DeleteResponse{
