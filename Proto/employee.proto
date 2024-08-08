@@ -6,6 +6,7 @@ option go_package = "/proto";
 
 
 service EmployeeService {
+    rpc CreateEmployee (Employee) returns (Employee);
     rpc GetEmployees (EmptyRequest) returns (EmployeeList);
     rpc GetEmployee (EmployeeIdRequest) returns (Employee);
     rpc UpdateEmployee (UpdateEmployeeRequest) returns (Employee);

@@ -19,6 +19,7 @@ import (
 const _ = grpc.SupportPackageIsVersion8
 
 const (
+	EmployeeService_CreateEmployee_FullMethodName = "/employee.EmployeeService/CreateEmployee"
 	EmployeeService_GetEmployees_FullMethodName   = "/employee.EmployeeService/GetEmployees"
 	EmployeeService_GetEmployee_FullMethodName    = "/employee.EmployeeService/GetEmployee"
 	EmployeeService_UpdateEmployee_FullMethodName = "/employee.EmployeeService/UpdateEmployee"
@@ -29,6 +30,7 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type EmployeeServiceClient interface {
+	CreateEmployee(ctx context.Context, in *Employee, opts ...grpc.CallOption) (*Employee, error)
 	GetEmployees(ctx context.Context, in *EmptyRequest, opts ...grpc.CallOption) (*EmployeeList, error)
 	GetEmployee(ctx context.Context, in *EmployeeIdRequest, opts ...grpc.CallOption) (*Employee, error)
 	UpdateEmployee(ctx context.Context, in *UpdateEmployeeRequest, opts ...grpc.CallOption) (*Employee, error)
@@ -41,6 +43,16 @@ type employeeServiceClient struct {
 
 func NewEmployeeServiceClient(cc grpc.ClientConnInterface) EmployeeServiceClient {
 	return &employeeServiceClient{cc}
+}
+
+func (c *employeeServiceClient) CreateEmployee(ctx context.Context, in *Employee, opts ...grpc.CallOption) (*Employee, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Employee)
+	err := c.cc.Invoke(ctx, EmployeeService_CreateEmployee_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *employeeServiceClient) GetEmployees(ctx context.Context, in *EmptyRequest, opts ...grpc.CallOption) (*EmployeeList, error) {
@@ -87,6 +99,7 @@ func (c *employeeServiceClient) DeleteEmployee(ctx context.Context, in *Employee
 // All implementations must embed UnimplementedEmployeeServiceServer
 // for forward compatibility
 type EmployeeServiceServer interface {
+	CreateEmployee(context.Context, *Employee) (*Employee, error)
 	GetEmployees(context.Context, *EmptyRequest) (*EmployeeList, error)
 	GetEmployee(context.Context, *EmployeeIdRequest) (*Employee, error)
 	UpdateEmployee(context.Context, *UpdateEmployeeRequest) (*Employee, error)
@@ -98,6 +111,9 @@ type EmployeeServiceServer interface {
 type UnimplementedEmployeeServiceServer struct {
 }
 
+func (UnimplementedEmployeeServiceServer) CreateEmployee(context.Context, *Employee) (*Employee, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateEmployee not implemented")
+}
 func (UnimplementedEmployeeServiceServer) GetEmployees(context.Context, *EmptyRequest) (*EmployeeList, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetEmployees not implemented")
 }
@@ -121,6 +137,24 @@ type UnsafeEmployeeServiceServer interface {
 
 func RegisterEmployeeServiceServer(s grpc.ServiceRegistrar, srv EmployeeServiceServer) {
 	s.RegisterService(&EmployeeService_ServiceDesc, srv)
+}
+
+func _EmployeeService_CreateEmployee_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Employee)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(EmployeeServiceServer).CreateEmployee(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: EmployeeService_CreateEmployee_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(EmployeeServiceServer).CreateEmployee(ctx, req.(*Employee))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _EmployeeService_GetEmployees_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -202,6 +236,10 @@ var EmployeeService_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "employee.EmployeeService",
 	HandlerType: (*EmployeeServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "CreateEmployee",
+			Handler:    _EmployeeService_CreateEmployee_Handler,
+		},
 		{
 			MethodName: "GetEmployees",
 			Handler:    _EmployeeService_GetEmployees_Handler,
