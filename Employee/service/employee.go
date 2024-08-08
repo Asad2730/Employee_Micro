@@ -51,11 +51,25 @@ func (s *server) UpdateEmployee(ctx context.Context, updateEmployeeDto *pb.Updat
 				Email:      updateEmployeeDto.Email,
 				Department: emp.Department,
 			}
-			return emp, nil
+			return data.Emp_Arr[i], nil
 		}
 	}
 
 	return nil, status.Errorf(codes.NotFound, "Employee not found with id: %d\n", updateEmployeeDto.Id)
+}
+
+func (s *server) DeleteEmployee(ctx context.Context, EmpId *pb.EmployeeIdRequest) (*pb.DeleteResponse, error) {
+	for i, emp := range data.Emp_Arr {
+		if emp.Id == emp.Id {
+			data.Emp_Arr = append(data.Emp_Arr[:i], data.Emp_Arr[i+1:]...)
+
+			return &pb.DeleteResponse{
+				Message: "Employee Reomved Successfully!",
+			}, nil
+		}
+	}
+
+	return nil, status.Errorf(codes.NotFound, "Employee not found with id: %d\n", EmpId.Id)
 }
 
 func (s *server) Start() error {
